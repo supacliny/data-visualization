@@ -141,15 +141,17 @@
 
 		<script language="JavaScript">
 		    $(document).ready(function() {
-		        $('stock').submit(function() {
+		        $('#stock').submit(function(event) {
 		            $.ajax({
 		                data: $(this).serialize(), 
-		                type: $(this).attr('post'), 
-		                url: $(this).attr('/datavis/'), 
+		                type: 'POST', 
+		                url: '/', 
 		                success: function(response) {
-		                    $('container').html(response); 
+		                    $('#container').html(response); 
 		                }
 		            });
+					event.preventDefault();
+					event.stopPropagation();
 		            return false;
 		        });
 		    });
@@ -159,7 +161,7 @@
 	<body>			
 		<script type="text/javascript" src="content/js/highstock.js"></script>
 		<div id="container" style="height: 600px; min-width: 600px"></div>
-		<form action="/datavis/" id="stock" method="post">{% csrf_token %} 
+		<form action="" id="stock" method="post">{% csrf_token %} 
 		<center>
 			<table>
 				<tr>

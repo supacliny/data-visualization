@@ -3,7 +3,7 @@ from django.template import RequestContext, loader
 from datavis.models import Data
 from datavis.bpnn import NN
 from django.http import HttpResponse
-from django.shortcuts import render_to_response
+from django.views.generic.simple import direct_to_template
 
 import matplotlib.finance as finance
 import matplotlib.mlab as mlab
@@ -11,26 +11,30 @@ import numpy as np
 import datetime
 import time
 
-def index(request):
 
-	if request.method == "POST" and request.is_ajax:
-		symbol = request.POST["symbol"]
-		if symbol == '':
-			symbol = 'AAPL'
-#		date1=datetime.datetime.strptime(request.POST["from"],'%Y-%m-%d')
-#		date2=datetime.datetime.strptime(request.POST["to"],'%Y-%m-%d')
-	else:
-		symbol = 'AAPL'
+def index(request):
+	"""Describe what you're doing."""
+	print "received %s request" % request.method
+	print "ajax: %r" % request.is_ajax()
 	
+	symbol = ''
+	
+	if request.method == "POST" and request.is_ajax():
+		symbol = request.POST.get("symbol")
+	
+	symbol = symbol or 'AAPL'
+		
+	print "symbol %s" % symbol
 	start = datetime.date(2006, 11, 30)
 	end = datetime.date(2011, 12, 2)
 	answer = 0
 	
 	# Catch CSV
-	fh = finance.fetch_historical_yahoo(symbol, start, end)
+	stock_history = finance.fetch_historical_yahoo(symbol, start, end)
 
 	# From CSV to REACARRAY
-	r = mlab.csv2rec(fh); fh.close()
+	r = mlab.csv2rec(stock_history)
+
 	# Order by Desc
 	r.sort()
 
@@ -57,18 +61,19 @@ def index(request):
 	#testepochcurrentdate = (2/(max(dates) - min(dates))) * epochcurrentdate - 1
 	#answer = unscale(n.test([[[testepochcurrentdate]]]), prices)
 	
-	t = loader.get_template('datavis/index.html')
+	template = 'datavis/index.html'
 
-	c = RequestContext(request, {
+	context = {
 		'answer': answer,
 		'symbol': symbol,
 		'dates': dates,
 		'prices': prices,
 		'ma20': ma20,
 		'macd': macd,
-	})
+	}
+	
+	return direct_to_template(request, template, context)
 
-	return HttpResponse(t.render(c))
 
 def unscale(value, list):
 		answer = (value + 1) / (2/max(list) - min(list))
