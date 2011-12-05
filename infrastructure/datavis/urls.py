@@ -2,6 +2,9 @@
 from django.conf.urls.defaults import *
 from infrastructure import settings
 
+from django.contrib import admin
+admin.autodiscover()
+
 urlpatterns = patterns('datavis.views',
     (r'^$', 'index'),
 )
