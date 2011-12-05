@@ -14,44 +14,19 @@ import time
 
 def index(request):
 	"""Describe what you're doing."""
-	print "received %s request" % request.method
-	print "ajax: %r" % request.is_ajax()
-	
-	symbol = ''
 	
 	if request.method == "POST" and request.is_ajax():
 		symbol = request.POST.get("symbol")
+	else:
+		symbol = 'AAPL'
 	
-	symbol = symbol or 'AAPL'
-		
-	print "symbol %s" % symbol
 	start = datetime.date(2006, 11, 30)
 	end = datetime.date(2011, 12, 2)
-	answer = 0
-	
-	# Catch CSV
-	stock_history = finance.fetch_historical_yahoo(symbol, start, end)
 
-	# From CSV to REACARRAY
-	r = mlab.csv2rec(stock_history)
-
-	# Order by Desc
-	r.sort()
-
-	dates = r.date
-	prices = r.adj_close
-	
-	# convert to epoch time for highcharts
-	dates = [(int(time.mktime(time.strptime(date.strftime("%Y-%m-%d"), "%Y-%m-%d"))) - time.timezone)*1000 for date in dates]	
-	
-	# find the moving average of this time series
-	ma20 = moving_average(prices, 20, type='simple')
-	macd = moving_average_convergence(prices)
-	
-	input = normalize(dates)
-	output = normalize(prices)
-	
 	### machine learning code for neural nets
+	#projection= 0
+	#input = normalize(dates)
+	#output = normalize(prices)	
 	# create a network with two input, two hidden, and one output nodes
 	#n = NN(1, 2, 1)
 	#data = createtrainingdata(input, output)	
@@ -61,10 +36,29 @@ def index(request):
 	#testepochcurrentdate = (2/(max(dates) - min(dates))) * epochcurrentdate - 1
 	#answer = unscale(n.test([[[testepochcurrentdate]]]), prices)
 	
-	template = 'datavis/index.html'
 
-	context = {
-		'answer': answer,
+	template = 'datavis/index.html'
+	context = get_stock_history(symbol, start, end)
+	return direct_to_template(request, template, context)
+
+
+def get_stock_history(symbol, start, end):
+	"""given a stock symbol as a strong, produces a dictionary of historical data"""
+
+	stock_history = finance.fetch_historical_yahoo(symbol, start, end)
+	r = mlab.csv2rec(stock_history)
+	r.sort()
+
+	dates = r.date
+	prices = r.adj_close
+	
+	dates = [(int(time.mktime(time.strptime(date.strftime("%Y-%m-%d"), "%Y-%m-%d"))) - time.timezone)*1000 for date in dates]
+	
+	# find the moving average of this time series
+	ma20 = moving_average(prices, 20, type='simple')
+	macd = moving_average_convergence(prices)
+	
+	return {
 		'symbol': symbol,
 		'dates': dates,
 		'prices': prices,
@@ -72,8 +66,6 @@ def index(request):
 		'macd': macd,
 	}
 	
-	return direct_to_template(request, template, context)
-
 
 def unscale(value, list):
 		answer = (value + 1) / (2/max(list) - min(list))
