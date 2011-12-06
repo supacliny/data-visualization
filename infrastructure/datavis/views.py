@@ -1,7 +1,7 @@
 from django.template import RequestContext, loader
 from datavis.models import Data
-from datavis.neuralnet import NeuralNet
 from datavis.indicators import Indicators
+from datavis.predictors import Predictors
 from django.http import HttpResponse
 from django.views.generic.simple import direct_to_template
 
@@ -18,24 +18,10 @@ def index(request):
 	if request.method == "POST" and request.is_ajax():
 		symbol = request.POST.get("symbol")
 	else:
-		symbol = 'AAPL'
+		symbol = 'EBAY'
 	
 	start = datetime.date(2006, 01, 01)
-	end = datetime.datetime.now()
-
-	### machine learning code for neural nets
-	#projection= 0
-	#input = normalize(dates)
-	#output = normalize(prices)	
-	# create a network with two input, two hidden, and one output nodes
-	#n = NN(1, 2, 1)
-	#data = createtrainingdata(input, output)	
-	#n.train(data)
-	#currentdate = datetime.datetime.now()
-	#epochcurrentdate = (int(time.mktime(time.strptime(currentdate.strftime("%Y-%m-%d"), "%Y-%m-%d"))) - time.timezone)*1000
-	#testepochcurrentdate = (2/(max(dates) - min(dates))) * epochcurrentdate - 1
-	#answer = unscale(n.test([[[testepochcurrentdate]]]), prices)
-	
+	end = datetime.datetime.now()	
 	dates, prices = get_stock_history(symbol, start, end)
 
 	# find the MA and MACD of this time series
@@ -43,9 +29,14 @@ def index(request):
 	ma20 = indicators.moving_average(20, type='simple')
 	macd = indicators.moving_average_convergence()
 	
+	# find the next day stock price in this time series
+	predictor = Predictors(dates, prices)
+	projection = predictor.predict()
+
 	template = 'datavis/index.html'
 
 	context = {
+		'projection': projection,
 		'symbol': symbol,
 		'dates': dates,
 		'prices': prices,
@@ -72,21 +63,6 @@ def get_stock_history(symbol, start, end):
 	return dates, prices
 
 	
-def unscale(value, list):
-		answer = (value + 1) / (2/max(list) - min(list))
-		return answer
-
-def createtrainingdata(listA, listB):
-	pattern = []
-	for index in range(len(listA)):
-		pattern.append([[listA[index]], [listB[index]]])
-		
-	return pattern
-
-def normalize(list):
-	precompute = 2/(max(list) - min(list))
-	scale = [precompute * elem - 1 for elem in list]
-	return scale
 
 
 	

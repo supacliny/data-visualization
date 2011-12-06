@@ -17,7 +17,7 @@
 				colors = Highcharts.getOptions().colors;
 
 				{% if symbol == '' %}
-				symbol = 'AAPL';
+				symbol = 'EBAY';
 				{% else %}
 				symbol = '{{ symbol }}';
 				{% endif %}
@@ -167,7 +167,7 @@
 					<th><button class="button" type="submit" value="Symbol">Refresh</button></th>
 				</tr>
 				<tr>
-					<th>Predicted Next Day:</th><th>{{ answer }}</th>
+					<th>Predicted Next Day:</th><th>{{ projection }}</th>
 				</tr>
 			</table>
 		</center>
