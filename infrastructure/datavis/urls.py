@@ -1,12 +1,13 @@
 # Serve static content.
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import patterns, url
 from infrastructure import settings
 
 from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('datavis.views',
-    (r'^$', 'index'),
+    url(r'^$', 'index', name='index'),
+	url(r'^predict/(?P<symbol>.*)$', 'predict', name='predict'),
 )
 
 if settings.DEBUG:
