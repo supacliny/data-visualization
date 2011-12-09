@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Visualization Platform</title>
+		<link rel="stylesheet" type="text/css" href="content/css/datavis.css" media="screen">
+		<script type="text/javascript">
+			var chart;
+			$(document).ready(function() {
+				
+				symbol = '{{ symbol }}';
+				var xValue = [];
+				var yValue = [];
+
+				{% for date in dates %}
+				xValue.push({{ date }});
+				{% endfor %}
+
+				{% for price in prices %}
+				yValue.push(parseFloat({{ price }}));
+				{% endfor %}
+				
+				chart = new Highcharts.Chart({
+					chart: {
+						renderTo: 'fftcontainer',
+						defaultSeriesType: 'spline',
+					},
+					title: {
+						text: 'Fast Fourier Transform',
+					},
+					subtitle: {
+						text: symbol,
+					},
+					credits: {
+				        enabled: false
+				    },
+				    legend: {
+				        enabled: false
+				    },
+					xAxis: {
+						maxZoom: 50,
+				        title: {
+				            enabled: true,
+				            text: '<b>Period</b> (Days)',
+				            style: {
+				                fontWeight: 'normal'
+				            }
+						}
+					},
+					yAxis: {
+						title: {
+							text: 'FFT^2'
+						},
+						plotLines: [{
+							value: 0,
+							width: 1,
+							color: '#808080'
+						}]
+					},
+					tooltip: {
+						formatter: function() {
+				                return '<b>'+ this.series.name +'</b><br/>'+
+								this.x +': '+ this.y +' days';
+						}
+					},
+					plotOptions: {
+						spline: {
+							lineWidth: 2,
+							states: {
+								hover: {
+									lineWidth: 2
+								}
+							},
+							marker: {
+								enabled: false,
+								states: {
+									hover: {
+										enabled: true,
+										symbol: 'circle',
+										radius: 3,
+										lineWidth: 1
+									}
+								}	
+							},
+						}
+					},
+					series: [{
+						name: 'FFT',
+						data: yValue,
+						type: 'spline'
+					}]
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div id="fftcontainer" style="width: 1000px; height: 500px; margin: 0 auto"></div>
+	</body>
+</html>
+
+

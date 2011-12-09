@@ -4,9 +4,11 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>Visualization Platform</title>
 		<link rel="stylesheet" type="text/css" href="content/css/datavis.css" media="screen">
+		<link rel="stylesheet" type="text/css" href="content/css/facebox.css" media="screen"/>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js" type="text/javascript"></script>
 		<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js" type="text/javascript"></script>
 		<script src="content/js/highstock.js" type="text/javascript"></script>
+		<script src="content/js/facebox.js" type="text/javascript"></script>
 		<script type="text/javascript">
 		$(function() {
 			var seriesOptions = [],
@@ -106,7 +108,7 @@
 				    },
 				
 					title : {
-						text : symbol + ' Time Series',
+						text : symbol + ' Time Series Analysis',
 						style: {
 			                fontSize: '24px'
 			           }
@@ -177,6 +179,7 @@
 			}
 
 			$(document).ready(function() {
+			
 				$("#predict").click(function() {
 					$("#projection").empty().html('<img src="content/img/calculating.gif"/>');
 		            $.ajax({
@@ -187,8 +190,15 @@
 		                	}
 		            	});
 						return false;
-					});
-
+				});
+				
+				$("#fft").click(function(){
+					var link = "/fft/"+symbol;
+					jQuery.facebox(function() {
+					  	$.get(link, function(data) { jQuery.facebox(data) })
+					})
+				});
+					
 				$('input[type="text"]').addClass("idleField");
 				$('input[type="text"]').focus(function() {
 					$(this).removeClass("idleField").addClass("focusField");
@@ -220,6 +230,12 @@
 			</tr>
 		</table>
 		</form>
+		<table style="float: left; margin: 0 10px 10px 300px;" cellspacing="2">
+			<tr>
+				<th>Fourier Transform:</th>
+				<th style="height:10px; width:50px"><button id="fft" class="button" value="FFT">Calculate</button></th>
+			</tr>
+		</table>
 		<table style="float:right" cellspacing="2">
 			<tr>
 				<th>Next Day:</th>

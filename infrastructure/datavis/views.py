@@ -30,6 +30,7 @@ def index(request):
 	indicators = Indicators(prices)	
 	ma20 = indicators.moving_average(20, type='simple')
 	macd = indicators.moving_average_convergence()
+	rsi = indicators.relative_strength()
 	
 	template = 'datavis/index.html'
 
@@ -39,6 +40,7 @@ def index(request):
 		'prices': prices,
 		'ma20': ma20,
 		'macd': macd,
+		'rsi': rsi,
 	}
 
 	return direct_to_template(request, template, context)
@@ -46,7 +48,7 @@ def index(request):
 
 def predict(request, symbol):
 	
-	#find the next day stock price in this time series
+	# find the next day stock price in this time series
 	start = datetime.date(2006, 01, 01)
 	end = datetime.datetime.now()
 	
@@ -58,10 +60,25 @@ def predict(request, symbol):
 	#projection = predictor.predict()
 	#projection = "%.2f" % projection
 	
-	time.sleep(5)
-	
+	time.sleep(3)
+
 	return HttpResponse(symbol, mimetype="text/html")
 	
 
-
+def fft(request, symbol):
+		
+	# get the stock history for that symbol with start and end dates
+	start = datetime.date(2006, 01, 01)
+	end = datetime.datetime.now()
+	stock = Stocks(symbol, start, end)
+	dates, prices = stock.get_stock_history()
 	
+	template = 'datavis/fft.html'
+
+	context = {
+		'symbol': symbol,
+		'dates': dates,
+		'prices': prices,
+	}
+
+	return direct_to_template(request, template, context)

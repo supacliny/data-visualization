@@ -8,6 +8,7 @@ admin.autodiscover()
 urlpatterns = patterns('datavis.views',
     url(r'^$', 'index', name='index'),
 	url(r'^predict/(?P<symbol>.*)$', 'predict', name='predict'),
+	url(r'^fft/(?P<symbol>.*)$', 'fft', name='fft'),
 )
 
 if settings.DEBUG:
