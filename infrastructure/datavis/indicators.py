@@ -35,7 +35,40 @@ class Indicators:
 		its 12-period exponential moving average. By comparing moving averages, MACD displays trend 
 		following characteristics, and by plotting the difference of the moving averages as an oscillator, 
 		MACD displays momentum characteristics."""  
-	  
+
 		emaslow = self.moving_average(nslow, type='exponential')
 		emafast = self.moving_average(nfast, type='exponential')
 		return (emafast - emaslow)
+
+
+	def relative_strength(self, n=14):
+		"""Relative Strength Index (RSI): RSI is plotted on a vertical scale from 0 to 100. 
+		Values above 70 are considered overbought and values below 30, oversold. 
+		When prices are over 70 or below 30 and diverge from price action, 
+		a warning is given of a possible trend reversal."""
+
+		deltas = np.diff(self.prices)
+		seed = deltas[:n+1]
+		up = seed[seed>=0].sum()/n
+		down = -seed[seed<0].sum()/n
+		rs = up/down
+		rsi = np.zeros_like(self.prices)
+		rsi[:n] = 100. - 100./(1.+rs)
+
+		for i in range(n, len(self.prices)):
+			delta = deltas[i-1] # cause the diff is 1 shorter
+
+			if delta>0:
+				upval = delta
+				downval = 0.
+			else:
+				upval = 0.
+				downval = -delta
+
+			up = (up*(n-1) + upval)/n
+			down = (down*(n-1) + downval)/n
+
+			rs = up/down
+			rsi[i] = 100. - 100./(1.+rs)
+
+		return rsi

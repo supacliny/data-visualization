@@ -21,12 +21,13 @@
 				symbol = '{{ symbol }}';
 				{% endif %}
 				
-				names = [symbol, 'MA', 'MACD'];
+				names = ['RSI', symbol, 'MA', 'MACD'];
 				
 				var xValue = [];
 				var yValue = [];
 				var mValue = [];
 				var dValue = [];
+				var rValue = [];
 
 				{% for date in dates %}
 				xValue.push({{ date }});
@@ -43,6 +44,10 @@
 				{% for mac in macd %}
 				dValue.push(parseFloat({{ mac }}));
 				{% endfor %}
+
+				{% for rs in rsi %}
+				rValue.push(parseFloat({{ rs }}));
+				{% endfor %}
 				
 				var data = [];
 				for (var i = 0; i < xValue.length; i++) { 
@@ -58,21 +63,33 @@
 				for (var i = 0; i < xValue.length; i++) { 
 					macd.push([xValue[i],dValue[i]]);
 				}
-				
+
+				var rsi = [];
+				for (var i = 0; i < xValue.length; i++) { 
+					rsi.push([xValue[i],rValue[i]]);
+				}
+
 				seriesOptions[0] = {
 					name: names[0],
-					data: data
+					data: rsi
 				};
 				
 				seriesOptions[1] = {
 					name: names[1],
-					data: mav
+					data: data,
+					yAxis: 1
 				};
 				
 				seriesOptions[2] = {
 					name: names[2],
-					data: macd,
+					data: mav,
 					yAxis: 1
+				};
+				
+				seriesOptions[3] = {
+					name: names[3],
+					data: macd,
+					yAxis: 2
 				};
 								
 				createChart();
@@ -82,11 +99,17 @@
 		
 				chart = new Highcharts.StockChart({
 				    chart: {
-				        renderTo: 'container'
+				        renderTo: 'container',
+						spacingLeft: 0,
+						plotBackgroundColor: '#FCFFC5',
+			            plotShadow: true
 				    },
 				
 					title : {
-						text : symbol + ' Stock Price'
+						text : symbol + ' Time Series',
+						style: {
+			                fontSize: '24px'
+			           }
 					},
 							
 					credits: {
@@ -102,7 +125,19 @@
 				    },
 		
 				    yAxis: [{
-				    	labels: {
+					    height: 85,
+						title: {
+			                text: 'RSI',
+							margin: 8
+			            }
+						}, {
+						top: 150,
+						offset: 0,
+						title: {
+			                text: symbol + ' Price',
+							margin: 8
+			            },
+						labels: {
 				    		formatter: function() {
 				    			return (this.value > 0 ? '+' : '') + this.value + '%';
 				    		}
@@ -114,10 +149,14 @@
 						}],
 					    height: 200
 					    }, {
-				    	top: 300,
-					    height: 100
+				    	top: 400,
+						offset: 0,
+						title: {
+			                text: 'MACD',
+							margin: 8
+			            },
+					    height: 85
 					}],
-				    
 				    plotOptions: {
 				    	series: {
 							animation: {
@@ -136,20 +175,20 @@
 				    series: seriesOptions
 				});
 			}
-				
-			$("#predict").click(function() {
-				$("#projection").empty().html('<img src="content/img/calculating.gif"/>');
-	            $.ajax({
-	                type: "GET", 
-	                url: "/predict/"+symbol, 
-	                success: function(response) {
-	                    $("#projection").html(response); 
-	                	}
-	            	});
-					return false;
-				});
-					
+
 			$(document).ready(function() {
+				$("#predict").click(function() {
+					$("#projection").empty().html('<img src="content/img/calculating.gif"/>');
+		            $.ajax({
+		                type: "GET", 
+		                url: "/predict/"+symbol, 
+		                success: function(response) {
+		                    $("#projection").html(response); 
+		                	}
+		            	});
+						return false;
+					});
+
 				$('input[type="text"]').addClass("idleField");
 				$('input[type="text"]').focus(function() {
 					$(this).removeClass("idleField").addClass("focusField");
@@ -173,18 +212,18 @@
 	<body>
 		<div id="container" style="height: 600px; min-width: 600px"></div>
 		<form action="" id="stock" method="post" autocomplete="off">{% csrf_token %}
-		<table style="float:left" cellspacing="5">
+		<table style="float:left" cellspacing="2">
 			<tr>
 				<th>Stock Symbol:</th>
-				<th style="height:50px; width:50px"><input type="text" name="symbol" style="width:50px"/></th>
+				<th style="height:10px; width:50px"><input type="text" name="symbol" style="width:50px"/></th>
 				<th><button type="submit" class="button" value="Symbol">Refresh</button></th>
 			</tr>
 		</table>
 		</form>
-		<table style="float:right" cellspacing="5">
+		<table style="float:right" cellspacing="2">
 			<tr>
 				<th>Next Day:</th>
-				<th style="height:50px; width:50px"><div id="projection"></div></th>
+				<th style="height:10px; width:50px"><div id="projection"></div></th>
 				<th><button id="predict" class="button" value="Predict">Predict</button></th>
 			</tr>
 		</table>
