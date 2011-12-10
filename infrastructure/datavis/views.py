@@ -53,16 +53,16 @@ def predict(request, symbol):
 	end = datetime.datetime.now()
 	
 	# get the stock history for that symbol with start and end dates
-	#stock = Stocks(symbol, start, end)
-	#dates, prices = stock.get_stock_history()
+	stock = Stocks(symbol, start, end)
+	dates, prices = stock.get_stock_history()
 	
-	#predictor = Predictors(dates, prices)
-	#projection = predictor.predict()
-	#projection = "%.2f" % projection
+	predictor = Predictors(dates, prices)
+	projection = predictor.predict()
+	projection = "%.2f" % projection
 	
-	time.sleep(3)
+	#time.sleep(3)
 
-	return HttpResponse(symbol, mimetype="text/html")
+	return HttpResponse(projection, mimetype="text/html")
 	
 
 def fft(request, symbol):
