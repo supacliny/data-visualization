@@ -105,7 +105,8 @@
 				        renderTo: 'container',
 						spacingLeft: 0,
 						plotBackgroundColor: '#FCFFC5',
-			            plotShadow: true
+			            plotShadow: true,
+						alignTicks: false
 				    },
 				
 					title : {
@@ -114,7 +115,7 @@
 			                fontSize: '24px'
 			           }
 					},
-							
+
 					credits: {
 				        enabled: false
 				    },
@@ -132,19 +133,34 @@
 						title: {
 			                text: 'RSI',
 							margin: 8
-			            }
+			            },
+				        minorGridLineColor: '#F0F0AA',
+			            minorTickInterval: 'auto',
+						labels: {
+				    		formatter: function() {
+				    			return this.value
+				    		}
+				    	},
+						plotLines : [{
+							value : 30,
+							color : '#006699',
+							dashStyle : 'shortdash',
+							width : 2
 						}, {
-						top: 150,
+							value : 70,
+							color : '#006699',
+							dashStyle : 'shortdash',
+							width : 2
+						}]
+						}, {
+						top: 175,
 						offset: 0,
 						title: {
 			                text: symbol + ' Price',
 							margin: 8
 			            },
-						labels: {
-				    		formatter: function() {
-				    			return (this.value > 0 ? '+' : '') + this.value + '%';
-				    		}
-				    	},
+				        minorGridLineColor: '#F0F0AA',
+			            minorTickInterval: 'auto',
 				    	plotLines: [{
 				    		value: 0,
 				    		width: 2,
@@ -154,34 +170,26 @@
 					    }, {
 				    	top: 400,
 						offset: 0,
+						minorGridLineColor: '#F0F0AA',
+			            minorTickInterval: 'auto',
 						title: {
 			                text: 'MACD',
 							margin: 8
 			            },
 					    height: 85
 					}],
-				    plotOptions: {
-				    	series: {
-							animation: {
-			                    duration: 4000,
-			                    easing: 'swing'
-							},
-				    		compare: 'value'
-				    	}
-				    },
-				
 				    tooltip: {
-				    	pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
+				    	pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>',
 				    	yDecimals: 2
 				    },
-				    
+				
 				    series: seriesOptions
 				});
 			}
 
 			$(document).ready(function() {
-			
-				$("#demo[title]").tooltip({
+				
+				$("#tltip[title]").tooltip({
 						// use the fade effect instead of the default
 						effect: "fade",
 
@@ -240,22 +248,22 @@
 		<form action="" id="stock" method="post" autocomplete="off">{% csrf_token %}
 		<table style="float:left" cellspacing="2">
 			<tr>
-				<th><div id="demo" title="Input any stock symbol to get its time series history - provided that company has been trading since 1 Jan 2006.">Stock Symbol:</div></th>
+				<th><div id="tltip" title="Input a stock symbol to retrieve its price history provided that the company has been trading since 1 Jan 2006.">Stock Symbol:</div></th>
 				<th style="height:10px; width:50px"><input type="text" name="symbol" style="width:50px"/></th>
 				<th><button type="submit" class="button" value="Symbol">Refresh</button></th>
 			</tr>
 		</table>
 		</form>
-		<table style="float: left; margin: 0 10px 10px 300px;" cellspacing="2">
+		<table style="float: left; margin: 0 10px 10px 325px;" cellspacing="2">
 			<tr>
-				<th>Fourier Transform:</th>
+				<th><div id="tltip" title="The Fourier transform converts a time series to a frequency spectrum so that periodic trends can be identified.">Fourier Transform:</div></th>
 				<th style="height:10px; width:50px"><button id="fft" class="button" value="FFT">Calculate</button></th>
 			</tr>
 		</table>
 		<table style="float:right" cellspacing="2">
 			<tr>
-				<th>Next Day:</th>
-				<th style="height:10px; width:50px"><div id="projection"></div></th>
+				<th><div id="tltip" title="Train a Neural Network with this time series so that the next day closing price can be projected.">Next Day:</div></th>
+				<th style="height:10px; width:50px"><div class="projection" id="projection"><input type="text" name="symbol" style="width:50px" disabled="disabled"/></div></th>
 				<th><button id="predict" class="button" value="Predict">Predict</button></th>
 			</tr>
 		</table>
