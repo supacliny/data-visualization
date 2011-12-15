@@ -3,9 +3,19 @@ import datetime
 import time
 
 class Predictors:
-	"""this class will attempt to instantiate a prediction object"""
+	"""
+	A Predictor instantiation is used as an api to predictor classes like Neural Net.
+	Ultimately, we want to have several types of predictors like SVMs, Bayesians, HMMs.
 
+	Parameters
+	----------
+	dates: historical dates of a particular stock
+	prices: historical prices of same stock
 
+	Returns
+	-------
+	None
+	"""
 	def __init__(self, dates, prices):
 		# list of dates and stock prices
 		self.dates = dates
@@ -13,6 +23,17 @@ class Predictors:
 
 
 	def predict(self):
+		"""
+		Trigger a prediction event for the next day after normalizing input data.
+
+		Parameters
+		----------
+		None
+
+		Returns
+		-------
+		projection: the projected next day price for that stock.
+		"""
 		# normalize the input and ouput data and the combine
 		inputdata = [self.normalize(elem, self.dates) for elem in self.dates]
 		outputdata = [self.normalize(elem, self.prices) for elem in self.prices]
@@ -26,13 +47,25 @@ class Predictors:
 		tomorrow = datetime.date.today() + datetime.timedelta(days=1)
 		tomorrow = (int(time.mktime(time.strptime(tomorrow.strftime("%Y-%m-%d"), "%Y-%m-%d"))) - time.timezone)*1000
 
+		# magic of math!
 		projection = self.unscale(neuralnetwork.test([[[self.normalize(tomorrow, self.dates)]]]), self.prices)
 
 		return projection
 
 
 	def normalize(self, value, listA):
-		# we want to normalize the input and output data to a -1 to +1 range
+		"""
+		Normalize the input data in the range -1 to +1 for better NN performance.
+
+		Parameters
+		----------
+		value: value of the input to be scaled
+		listA: use this list to scale that value
+
+		Returns
+		-------
+		scale: the scaled value of the input
+		"""
 		oldRange = max(listA) - min(listA)
 		newRange = 2
 		scale = (((value - min(listA)) * newRange) / float(oldRange)) - 1
@@ -40,7 +73,18 @@ class Predictors:
 
 
 	def unscale(self, value, listA):
-		# now we want to unscale the value
+		"""
+		Unscale the value to get the original answer.
+
+		Parameters
+		----------
+		value: value of the input to be unscaled
+		listA: use this list to unscale that value
+
+		Returns
+		-------
+		answer: the unscaled projected value in the range of listA
+		"""
 		oldRange = max(listA) - min(listA)
 		newRange = 2
 		answer = (((value + 1) * oldRange) / float(newRange)) + min(listA)
@@ -48,7 +92,18 @@ class Predictors:
 
 
 	def create_training_data(self, listA, listB):
-		# assemble the stock and prices as an array of arrays of arrays.
+		"""
+		Assemble the dates and prices as an array of arrays of arrays for highcharts.
+
+		Parameters
+		----------
+		listA: pattern[0][0]
+		listB: pattern[0][1]
+
+		Returns
+		-------
+		pattern: an array of 2 arrays
+		"""
 		pattern = []
 		for index in range(len(listA)):
 			pattern.append([[listA[index]], [listB[index]]])		

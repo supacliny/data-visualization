@@ -15,17 +15,29 @@ def makeMatrix(I, J, fill=0.0):
 		m.append([fill]*J)
 	return m
 
-# sigmoid function although tanh is a little nicer than the standard 1/(1+e^-x)
+# sigmoid function using tanh (standard sigmoid = 1/(1+e^-x))
 def sigmoid(x):
 	return math.tanh(x)
 
-# derivative of the sigmoid function, in terms of the output (i.e. y)
+# derivative of the sigmoid function in terms of the output y
 def dsigmoid(y):
 	return 1.0 - y**2
 
 class NeuralNet:
+	"""
+	A NeuralNet instantiation is used to predict the next-day price.
+	Historical data is used to train the NN.
 
+	Parameters
+	----------
+	ni: number of input nodes
+	nh: number of hidden nodes
+	no: number of output nodes
 
+	Returns
+	-------
+	None
+	"""
 	def __init__(self, ni, nh, no):
 		# number of input, hidden, and output nodes
 		self.ni = ni + 1 # +1 for bias node
@@ -54,6 +66,17 @@ class NeuralNet:
 
 
 	def update(self, inputs):
+		"""
+		Update the weights associated with each node.
+
+		Parameters
+		----------
+		inputs: updated values
+
+		Returns
+		-------
+		ao: array of activations for that node
+		"""
 		if len(inputs) != self.ni-1:
 			raise ValueError, 'wrong number of inputs'
 
@@ -79,6 +102,22 @@ class NeuralNet:
 
 
 	def backPropagate(self, targets, N, M):
+		"""
+		Backpropagation algorithm using gradient decent.
+		The algorithm first goes forward to get initial weights.
+		Then it goes backward to update each activation with an error.
+		Does these two steps for each input tuple.
+
+		Parameters
+		----------
+		targets: y value of training (x,y)
+		N: learning rate
+		M: momentum factor
+
+		Returns
+		-------
+		error: array of errors for each layer
+		"""
 		if len(targets) != self.no:
 			raise ValueError, 'wrong number of target values'
 
@@ -118,24 +157,37 @@ class NeuralNet:
 
 
 	def test(self, patterns):
+		"""
+		Returns the next-day price after training with historical data.
+
+		Parameters
+		----------
+		patterns: x value of training (x,y)
+
+		Returns
+		-------
+		answer: the next day price!
+		"""
 		for p in patterns:
 			answer = self.update(p[0])
 		return answer[0]
 
 
-	def weights(self):
-		print 'Input weights:'
-		for i in range(self.ni):
-			print self.wi[i]
-		print
-		print 'Output weights:'
-		for j in range(self.nh):
-			print self.wo[j]
-
-
 	def train(self, patterns, iterations=1000, N=0.5, M=0.1):
-		# N: learning rate
-		# M: momentum factor
+		"""
+		Train Neural net with historical prices for that stock.
+
+		Parameters
+		----------
+		patterns: array of input data 
+		iterations: number of iterations for gradient descent to minimize error
+		N: learning rate
+		M: momemtum factor
+
+		Returns
+		-------
+		None
+		"""
 		for i in xrange(iterations):
 			error = 0.0
 			for p in patterns:
