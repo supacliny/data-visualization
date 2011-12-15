@@ -1,6 +1,7 @@
 import numpy
 import math
 
+
 class Filters:
 	"""
 	A Filters instantiation is an object containing a Kalman Filter.

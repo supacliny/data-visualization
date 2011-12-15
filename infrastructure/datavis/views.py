@@ -35,6 +35,7 @@ def index(request):
 
 	if request.method == "POST":
 		symbol = request.POST.get("symbol")
+		symbol = symbol.upper()
 
 	if symbol == "":
 		symbol = 'EBAY'
@@ -100,7 +101,7 @@ def predict(request, symbol):
 	projection = "%.2f" % projection
 
 	return HttpResponse(projection, mimetype="text/html")
-	
+
 
 def fft(request, symbol):
 	"""
