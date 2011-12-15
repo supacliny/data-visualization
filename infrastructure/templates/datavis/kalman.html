@@ -1,0 +1,125 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<title>Visualization Platform</title>
+		<link rel="stylesheet" type="text/css" href="content/css/datavis.css" media="screen"/>
+		<script type="text/javascript">
+		$(function() {
+				var seriesOptions = [];
+				var yAxisOptions = [];
+				
+				symbol = '{{ symbol }}';
+				mu = {{ mu }};
+				sigma = {{ sigma }};
+				posstd = mu + sigma;
+				negstd = mu - sigma;
+				
+				names = [symbol,'KF'];
+				
+				var xValue = [];
+				var yValue = [];
+				var kValue = [];
+
+				{% for date in dates %}
+				xValue.push({{ date }});
+				{% endfor %}
+
+				{% for price in prices %}
+				yValue.push(parseFloat({{ price }}));
+				{% endfor %}
+
+				{% for kal in kalman %}
+				kValue.push(parseFloat({{ kal }}));
+				{% endfor %}
+								
+				var data = [];
+				for (var i = 0; i < xValue.length; i++) { 
+					data.push([xValue[i],yValue[i]]);
+				}
+				
+				var kalman = [];
+				for (var i = 0; i < xValue.length; i++) { 
+					kalman.push([xValue[i],kValue[i]]);
+				}
+				
+				seriesOptions[0] = {
+					name: names[0],
+					data: data
+				};
+				
+				seriesOptions[1] = {
+					name: names[1],
+					data: kalman
+				};
+
+				createChart();
+				
+			// create the chart when all data is loaded
+			function createChart() {
+		
+				chart = new Highcharts.StockChart({
+				    chart: {
+				        renderTo: 'kcontainer',
+						panning: false,
+						zoomType: 'x'
+				    },
+					title : {
+						text : 'Kalman Filter'
+					},
+					credits: {
+				        enabled: false
+				    },
+					subtitle: {
+						text: symbol
+					},
+				    scrollbar: {
+			            enabled: false
+			        },
+					rangeSelector: {
+						enabled: false,
+						inputEnabled: false,
+						selected: 5
+					},
+				    yAxis: {
+						title: {
+			                text: 'Price'
+			            },
+						plotLines : [{
+							value : posstd,
+							color : '#006699',
+							dashStyle : 'shortdash',
+							width : 2
+						}, {
+							value : mu,
+							color : '#006699',
+							dashStyle : 'shortdash',
+							width : 2
+						}, {
+							value : negstd,
+							color : '#006699',
+							dashStyle : 'shortdash',
+							width : 2
+						}, {
+							value: 0,
+							width: 1,
+							color: '#808080'
+						}]
+					},
+				    tooltip: {
+				    	pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>',
+				    	yDecimals: 2
+				    },
+				
+				    series: seriesOptions
+				});
+			}
+		});
+		</script>
+	</head>
+	<body>
+		<div id="kcontainer" style="width: 1050px; height: 500px; margin: 0 auto"></div>
+	</body>
+</html>
+
+

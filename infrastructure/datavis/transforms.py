@@ -1,18 +1,16 @@
 from scipy import *
 from scipy import fftpack
 
-class FFT:
+class Transforms:
 	"""this class defines a fast fourier transform algorithm that can identify patterns."""
 
-	def __init__(self, prices dates):
+	def __init__(self, prices):
 		# list of stock prices
 		self.prices = prices
-		self.dates = dates
-
 		
-	def fft(self):
+	def fft2(self):
 
-		transform = fft(prices)
+		transform = fft(self.prices)
 
 		transformsize = len(transform)
 
@@ -22,6 +20,8 @@ class FFT:
 
 		frequency = array(range(transformsize/2))/(transformsize/2.0)*nyquist
 
+		frequency = frequency[1:len(frequency)]
+
 		period = 1./frequency
 		
-		return period[1:len(period)], power
+		return period, power

@@ -1,16 +1,12 @@
-from matplotlib import finance, mlab
-import numpy
 import datetime
 import time
+from datavis.stocks import Stocks
 
-symbol = 'AAPL'
+symbol = 'EBAY'
 
-start = datetime.date(2006, 11, 30)
-end = datetime.date(2011, 12, 2)
-answer = 0
+start = datetime.date(1999, 12, 31)
+end = datetime.datetime.now()
 
-# Catch CSV
-stock_history = finance.fetch_historical_yahoo(symbol, start, end)
+stock = Stocks(symbol, start, end)
+dates, prices = stock.get_stock_history()
 
-# From CSV to REACARRAY
-r = mlab.csv2rec(stock_history)

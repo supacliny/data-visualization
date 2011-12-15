@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<title>Visualization Platform</title>
-		<link rel="stylesheet" type="text/css" href="content/css/datavis.css" media="screen">
+		<link rel="stylesheet" type="text/css" href="content/css/datavis.css" media="screen"/>
 		<link rel="stylesheet" type="text/css" href="content/css/facebox.css" media="screen"/>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js" type="text/javascript"></script>
 		<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js" type="text/javascript"></script>
@@ -108,26 +108,21 @@
 			            plotShadow: true,
 						alignTicks: false
 				    },
-				
 					title : {
 						text : symbol + ' Time Series Analysis',
 						style: {
 			                fontSize: '24px'
 			           }
 					},
-
 					credits: {
 				        enabled: false
 				    },
-				
 				    scrollbar: {
 			            enabled: false
 			        },
-			    
 				    rangeSelector: {
 				        selected: 2
 				    },
-		
 				    yAxis: [{
 					    height: 85,
 						title: {
@@ -205,10 +200,12 @@
 					});
 				
 				$("#predict").click(function() {
-					$("#projection").empty().html('<img src="content/img/calculating.gif"/>');
 		            $.ajax({
 		                type: "GET", 
-		                url: "/predict/"+symbol, 
+		                url: "/predict/"+symbol,
+						beforeSend:function(){
+						    $("#projection").html('<img src="content/img/calculating.gif"/>');
+						    }, 
 		                success: function(response) {
 		                    $("#projection").html(response); 
 		                	}
@@ -222,6 +219,14 @@
 					  	$.get(link, function(data) { jQuery.facebox(data) })
 					})
 				});
+				
+				$("#kalman").click(function(){
+					var link = "/kalman/"+symbol;
+					jQuery.facebox(function() {
+					  	$.get(link, function(data) { jQuery.facebox(data) })
+					})
+				});
+				
 					
 				$('input[type="text"]').addClass("idleField");
 				$('input[type="text"]').focus(function() {
@@ -248,13 +253,19 @@
 		<form action="" id="stock" method="post" autocomplete="off">{% csrf_token %}
 		<table style="float:left" cellspacing="2">
 			<tr>
-				<th><div id="tltip" title="Input a stock symbol to retrieve its price history provided that the company has been trading since 1 Jan 2006.">Stock Symbol:</div></th>
+				<th><div id="tltip" title="A stock symbol retrieves its price history provided that the company has been trading since 2000.">Stock Symbol:</div></th>
 				<th style="height:10px; width:50px"><input type="text" name="symbol" style="width:50px"/></th>
 				<th><button type="submit" class="button" value="Symbol">Refresh</button></th>
 			</tr>
 		</table>
 		</form>
-		<table style="float: left; margin: 0 10px 10px 325px;" cellspacing="2">
+		<table style="float: left; margin: 0 10px 10px 180px;" cellspacing="2">
+			<tr>
+				<th><div id="tltip" title="The Kalman filter keeps track of the estimated state of the system and the variance or uncertainty of the estimate.">Kalman Filter:</div></th>
+				<th style="height:10px; width:50px"><button id="kalman" class="button" value="KALMAN">Apply</button></th>
+			</tr>
+		</table>
+		<table style="float: left; margin: 0 10px 10px 180px;" cellspacing="2">
 			<tr>
 				<th><div id="tltip" title="The Fourier transform converts a time series to a frequency spectrum so that periodic trends can be identified.">Fourier Transform:</div></th>
 				<th style="height:10px; width:50px"><button id="fft" class="button" value="FFT">Calculate</button></th>
@@ -262,7 +273,7 @@
 		</table>
 		<table style="float:right" cellspacing="2">
 			<tr>
-				<th><div id="tltip" title="Train a Neural Network with this time series so that the next day closing price can be projected.">Next Day:</div></th>
+				<th><div id="tltip" title="A Neural Network is dynamically trained with this time series so that the next day closing price can be projected.">Next Day:</div></th>
 				<th style="height:10px; width:50px"><div class="projection" id="projection"><input type="text" name="symbol" style="width:50px" disabled="disabled"/></div></th>
 				<th><button id="predict" class="button" value="Predict">Predict</button></th>
 			</tr>

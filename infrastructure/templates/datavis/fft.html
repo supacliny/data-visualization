@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<title>Visualization Platform</title>
-		<link rel="stylesheet" type="text/css" href="content/css/datavis.css" media="screen">
+		<link rel="stylesheet" type="text/css" href="content/css/datavis.css" media="screen"/>
 		<script type="text/javascript">
 			var chart;
 			$(document).ready(function() {
@@ -12,24 +12,30 @@
 				var xValue = [];
 				var yValue = [];
 
-				{% for date in dates %}
-				xValue.push({{ date }});
+				{% for time in period %}
+				xValue.push(parseFloat({{ time }}));
 				{% endfor %}
 
-				{% for price in prices %}
-				yValue.push(parseFloat({{ price }}));
+				{% for fft in power %}
+				yValue.push(parseFloat({{ fft }}));
 				{% endfor %}
 				
-				chart = new Highcharts.Chart({
+				var data = [];
+				for (var i = 0; i < xValue.length; i++) { 
+					data.push([xValue[i],yValue[i]]);
+				}
+				
+				chart = new Highcharts.StockChart({
 					chart: {
 						renderTo: 'fftcontainer',
-						defaultSeriesType: 'spline',
+						panning: false,
+						zoomType: 'x'
 					},
 					title: {
-						text: 'Fast Fourier Transform',
+						text: 'Fast Fourier Transform'
 					},
 					subtitle: {
-						text: symbol,
+						text: symbol
 					},
 					credits: {
 				        enabled: false
@@ -37,8 +43,27 @@
 				    legend: {
 				        enabled: false
 				    },
+				    scrollbar: {
+			            enabled: false
+			        },
+				    navigator: {
+			            enabled: false
+			        },
+					rangeSelector: {
+						enabled: false,
+						inputEnabled: false
+					},
 					xAxis: {
-						maxZoom: 50,
+						type: 'linear',
+						min: 0,
+						max: 1005,
+						startOnTick: false,
+						endOnTick: false,
+						labels: {
+		                    formatter: function(){
+		                        return this.value;
+		                    }
+		                },
 				        title: {
 				            enabled: true,
 				            text: '<b>Period</b> (Days)',
@@ -51,6 +76,8 @@
 						title: {
 							text: 'FFT^2'
 						},
+						min: 0,
+						startOnTick: false,
 						plotLines: [{
 							value: 0,
 							width: 1,
@@ -59,9 +86,9 @@
 					},
 					tooltip: {
 						formatter: function() {
-				                return '<b>'+ this.series.name +'</b><br/>'+
-								this.x +': '+ this.y +' days';
-						}
+				                return this.x +' days';
+						},
+						yDecimals: 1
 					},
 					plotOptions: {
 						spline: {
@@ -76,7 +103,7 @@
 								states: {
 									hover: {
 										enabled: true,
-										symbol: 'circle',
+										symbol: 'triangle-down',
 										radius: 3,
 										lineWidth: 1
 									}
@@ -87,14 +114,15 @@
 					series: [{
 						name: 'FFT',
 						data: yValue,
-						type: 'spline'
-					}]
+						pointStart: 1,
+		                pointInterval: 1
+						}]
 				});
 			});
 		</script>
 	</head>
 	<body>
-		<div id="fftcontainer" style="width: 1000px; height: 500px; margin: 0 auto"></div>
+		<div id="fftcontainer" style="width: 1050px; height: 500px; margin: 0 auto"></div>
 	</body>
 </html>
 
